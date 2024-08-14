@@ -1,0 +1,9 @@
+﻿@model IEnumerable<SelectListItem>
+
+<select class="select-student" name="lop" id="lop" onchange="filterClassStudents()" style="margin-right: 89px;">
+    @foreach (var item in Model)
+    {
+        <option value="@item.Value" @(item.Selected ? "selected" : "")>@item.Text</option>
+    }
+</select>
+    

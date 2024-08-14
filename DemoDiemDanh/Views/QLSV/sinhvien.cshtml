@@ -1,0 +1,277 @@
+﻿@model IEnumerable<DemoDiemDanh.Model.sinhvien>
+@{
+    ViewBag.Title = "Quản lý sinh viên";
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+}
+
+<style>
+    .select-student {
+        margin-right: 20px;
+        border-radius: 20px;
+        padding: 5px;
+    }
+
+    .icon {
+        color: white;
+        padding: 8px;
+        font-size: 20px;
+    }
+
+    .btn-icon {
+        border-radius: 8px;
+    }
+</style>
+
+<main id="main-content" class=" col-md-9 ms-sm-auto col-lg-10 px-md-2">
+    <div class="container-fluid menu p-3 mt-2 mb-2 bg-light card shadow-sm" style="display:inline-block">
+        <label for="khoa">Khoa: </label>
+        <select class="select-student text-center" name="khoa" id="khoa">
+            <option value="" disabled selected>--Vui lòng chọn Khoa--</option>
+            <option value="1">Khoa Công nghệ số và Kỹ thuật</option>
+        </select>
+
+        <label for="namhoc">Khoá: </label>
+        <select id="namhoc" onchange="filterClasses()">
+            <option value="">--Vui lòng chọn Khóa--</option>
+            <!-- Các giá trị Khóa sẽ được tạo động từ cơ sở dữ liệu -->
+        </select>
+        <label for="lop">Lớp: </label>
+        <select class="select-student" name="lop" id="lop" onchange="filterStudents()">
+            <option value="" disabled selected>--Vui lòng chọn Lớp--</option>
+            <!-- Partial view _ClassesDropdown sẽ được load vào đây -->
+        </select>
+
+        <!-- Nút mở modal -->
+        <button class="btn-icon" title="Import" style="background-color: peru;" data-toggle="modal" data-target="#importModal">
+            <i class="icon fa-solid fa-file-arrow-down"></i>
+        </button>
+        
+        <button class="btn-icon" title="Add" style="background-color: green;" data-toggle="modal" data-target="#exampleModal">
+            <i class="icon fa-solid fa-user-plus"></i>
+        </button>
+        
+        <button class="btn-icon" title="Delete" style="background-color: red;" data-toggle="modal" data-target="#deleteModal">
+            <i class="icon fa-solid fa-trash-can"></i>
+        </button>
+        <button class="btn-icon" title="Edit" style="background-color: rosybrown;" data-toggle="modal" data-target="#editModal">
+            <i class="icon fa-solid fa-pen-to-square"></i>
+        </button>
+    </div>
+    <div class="pt-4 mt-2 mb-2 bg-light card shadow-sm">
+        <div class="table-responsive">
+            <div id="studentTable">
+                @Html.Partial("_StudentTable", Model)
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import File Excel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("Import", "ExcelImport", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <div>
+                            <label for="file">Chọn file Excel:</label>
+                            <input type="file" name="file" id="file" />
+                        </div>
+                        <div>
+                            <input type="submit" value="Import" class="btn btn-primary mt-3" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Add -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Thêm thông tin sinh viên</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("themsinhvien", "QLSV", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <div class="form-group">
+                            <div class="form-group mb-3">
+                                <label for="masv">Mã số sinh viên:</label>
+                                <input type="text" class="form-control" placeholder="Mã số sinh viên" name="masv" id="Masv" readonly/>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="hoten">Họ tên sinh viên:</label>
+                                <input type="text" class="form-control" placeholder="Nhập họ tên sinh viên" name="tensv" id="Tensv" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="ngaysinh">Ngày sinh:</label>
+                                <input type="date" class="form-control" placeholder="Nhập ngày sinh" name="ngaysinh" id="Ngaysinh" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="Gioitinh">Giới tính:</label>
+                                <div>
+                                    <input type="radio" name="gioitinh" id="nam" value="Nam" />
+                                    <label for="nam">Nam</label>
+                                    <input type="radio" name="gioitinh" id="nu" value="Nữ" class="ms-3" />
+                                    <label for="nu">Nữ</label>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="Lop">Lớp:</label>
+                                <input type="text" class="form-control" placeholder="Nhập lớp" name="lop" id="lop" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="close btn btn-secondary" data-dismiss="modal" aria-label="Close" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying edited students -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Students</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Nội dung sẽ được thêm động từ JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmEditButton">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal deleteModal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Deleted Students</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Nội dung sẽ được thêm động từ JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+<script>
+
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("GetNamhocOptions", "QLSV")',
+            type: 'GET',
+            success: function (data) {
+                var $namhocDropdown = $('#namhoc');
+                $.each(data, function (index, item) {
+                    $namhocDropdown.append($('<option>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            }
+        });
+    });
+ $(document).ready(function () {
+    // Khi thay đổi Khóa học, lọc danh sách Lớp
+    $("#namhoc").change(function () {
+        filterClasses();
+    });
+
+    // Khi thay đổi Lớp, lọc danh sách Sinh viên
+    $("#lop").change(function () {
+        filterStudents();
+    });
+
+    // Hiển thị thông báo từ TempData
+    @if (TempData["Message"] != null)
+    {
+
+        <text>
+            alert("@TempData["Message"]");
+        </text>
+        TempData["Message"] = null;
+    }
+    @if (TempData["Error"] != null)
+    {
+
+        <text>
+    alert("@TempData["Error"]");
+        </text>
+        TempData["Error"] = null;
+    }
+});
+
+function filterClasses() {
+        var namhoc = $("#namhoc").val();
+
+        $.ajax({
+            url: '@Url.Action("GetClassesByNamhoc", "QLSV")',
+            type: 'GET',
+            data: { namhoc: namhoc },
+            success: function (data) {
+                var $lopDropdown = $('#lop');
+                $lopDropdown.empty();
+                $lopDropdown.append('<option value="">--Vui lòng chọn Lớp--</option>');
+
+                $.each(data, function (index, item) {
+                    $lopDropdown.append($('<option>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            }
+        });
+    }
+
+function filterStudents() {
+    var lop = $("#lop").val();
+
+    $.ajax({
+        url: '@Url.Action("GetStudentsByLop", "QLSV")',
+        type: 'GET',
+        data: { lop: lop },
+        success: function (data) {
+            $('#studentTable').html(data); // Cập nhật bảng sinh viên sau khi lọc theo Lớp
+        }
+    });
+}
+</script>
+

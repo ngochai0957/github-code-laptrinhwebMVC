@@ -1,0 +1,275 @@
+﻿@model DemoDiemDanh.Model.giangvien
+@{
+    ViewBag.Title = "Thông tin giảng viên";
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+}
+<style>
+    .custom-file-input {
+        display: none;
+    }
+
+    .custom-file-label {
+        cursor: pointer;
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+        .custom-file-label:hover {
+            background-color: #0056b3;
+        }
+
+    .icon {
+        font-size: 24px;
+        cursor: pointer;
+        color: #007bff;
+    }
+
+        .icon:hover {
+            color: #0056b3;
+        }
+</style>
+<main id="main-content" class="container-fluid pt-2 col-md-9 ms-sm-auto col-lg-10 px-md-2">
+
+    <div class="container-fluid card shadow bg-light">
+        <div class="row">
+            <div class="col-4 text-center">
+                <img src="@Url.Content(Model.anhgv)" class="img-fluid rounded-circle" alt="Avatar" id="avt-img" style="width: 150px; height: 150px;">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#changeavtModal">Thay đổi</button>
+            </div>
+            @using (Html.BeginForm("luuthongtin", "QLGV", FormMethod.Post, new { enctype = "multipart/form-data", @onsubmit = "return validateForm();" }))
+            {
+                @Html.HiddenFor(model => model.magv) <!-- Trường ẩn để lưu trữ magv -->
+
+                <div class="form-group">
+                    <label for="tengv">Họ Tên Giảng Viên</label>
+                    <input type="text" class="form-control" id="tengv" name="tengv" value="@Model.tengv">
+                </div>
+                <div class="form-group">
+                    <label for="email-giangvien">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" readonly value="@Model.email">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Gioitinh">Giới tính:</label>
+                    <div>
+                        @{
+                            if (Model.gioitinh == "Nam")
+                            {
+                                <input type="radio" name="gioitinh" id="nam" value="Nam" checked />
+                                <label for="nam">Nam</label>
+                                <input type="radio" name="gioitinh" id="nu" value="Nữ" class="ms-3" />
+                                <label for="nu">Nữ</label>
+                            }
+                            else if (Model.gioitinh == "Nữ")
+                            {
+                                <input type="radio" name="gioitinh" id="nam" value="Nam" />
+                                <label for="nam">Nam</label>
+                                <input type="radio" name="gioitinh" id="nu" value="Nữ" class="ms-3" checked />
+                                <label for="nu">Nữ</label>
+                            }
+                            else
+                            {
+                                <input type="radio" name="gioitinh" id="nam" value="Nam" />
+                                <label for="nam">Nam</label>
+                                <input type="radio" name="gioitinh" id="nu" value="Nữ" class="ms-3" />
+                                <label for="nu">Nữ</label>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hocvi">Trình Độ</label>
+                    <label for="hocvi">Trình Độ</label>
+                    <select class="form-control" id="hocvi" name="hocvi">
+                        <option value="">-- Chọn Trình Độ --</option>
+                        <option value="1" @(Model.hocvi == "1" ? "selected" : "")>Phó Giáo sư</option>
+                        <option value="2" @(Model.hocvi == "2" ? "selected" : "")>Tiến sĩ</option>
+                        <option value="3" @(Model.hocvi == "3" ? "selected" : "")>Thạc sĩ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="form-group">
+                        <a href="#" id="doimk" data-bs-toggle="modal" data-bs-target="#doimkModal">Đổi Mật Khẩu</a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hocphanqly">Học Phần Quản Lý</label>
+                    <textarea class="form-control" id="hocphanqly" disabled name="hocphanqly" rows="3">@Model.hocphanqly</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu Thông Tin</button>
+            }
+            <div class="d-flex justify-content-end">
+                <!-- Nút đăng xuất -->
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#logoutModal">Đăng Xuất</button>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Modal xác nhận đăng xuất -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Xác Nhận Đăng Xuất</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn đăng xuất không?
+                </div>
+                <div class="modal-footer">
+                    <!-- Nút hủy -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <!-- Nút xác nhận đăng xuất -->
+                    <form action="@Url.Action("Logout", "QLGV")" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Đăng Xuất</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="changeavtModal" tabindex="-1" role="dialog" aria-labelledby="changeavtModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeavtModalLabel">Đổi Hình Ảnh Đại Diện</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("ChangeAvt", "ExcelImport", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <div>
+                            <label for="file">Chọn hình ảnh:</label>
+                            <input type="file" name="file" id="file" />
+
+                        </div>
+                        <div>
+                            <input type="submit" value="Submit" class="btn btn-primary mt-3" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal Add -->
+    <div class="modal fade" id="doimkModal" tabindex="-1" aria-labelledby="doimkModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="doimkModalLabel">Đổi Mật Khẩu</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("doimk", "QLGV", FormMethod.Post, new { enctype = "multipart/form-data", id = "doimkForm" }))
+                    {
+                        <div class="form-group">
+                            <label for="current-password">Mật Khẩu Hiện Tại</label>
+                            <input type="password" class="form-control" id="matkhau" name="matkhau" placeholder="Nhập mật khẩu hiện tại">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">Mật Khẩu Mới</label>
+                            <input type="password" class="form-control" id="mkmoi" name="mkmoi" placeholder="Nhập mật khẩu mới">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Xác Nhận Mật Khẩu Mới</label>
+                            <input type="password" class="form-control" id="xacnhanmk" name="xacnhanmk" placeholder="Nhập lại mật khẩu mới">
+                        </div>
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="close btn btn-secondary" data-dismiss="modal" aria-label="Close">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    $(document).ready(function () {
+        // Khi nhấn nút "Import", hiển thị modal
+        $("button[data-target='#doimkModal']").click(function () {
+            $("#doimkModal").modal('show');
+        });
+
+        // Khi nhấn nút "Đăng Xuất", hiển thị modal
+        $("button[data-target='#logoutModal']").click(function () {
+            $("#logoutModal").modal('show');
+        });
+    });
+
+
+
+    $(document).ready(function () {
+        $("#edit-avt-icon").click(function () {
+            $("#file-input").click();
+        });
+
+        $("#file-input").change(function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#avt-img").attr("src", e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    });
+
+    function validateForm() {
+        var tengv = document.getElementById("tengv").value.trim();
+        var email = document.getElementById("email").value.trim();
+        var gioitinh = document.querySelector('input[name="gioitinh"]:checked');
+        var hocvi = document.getElementById("hocvi").value;
+
+        if (!tengv) {
+            alert("Họ tên giảng viên không được để trống");
+            return false;
+        }
+        if (!email) {
+            alert("Email không được để trống");
+            return false;
+        }
+        if (!gioitinh) {
+            alert("Vui lòng chọn giới tính");
+            return false;
+        }
+        if (!hocvi) {
+            alert("Vui lòng chọn trình độ");
+            return false;
+        }
+        return true;
+    }
+</script>
+@if (TempData["Message"] != null)
+{
+    <script>
+        alert('@TempData["Message"]');
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        alert('@TempData["Error"]');
+    </script>
+}

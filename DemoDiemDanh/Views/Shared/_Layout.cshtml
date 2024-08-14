@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+
+    @*@Styles.Render("~/Content/bootstrap.min.css")*@
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/CssForWeb/for-layout.css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .sidebar {
+            transition: transform 0.3s ease;
+
+        }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+
+        .toggle-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            cursor: pointer;
+            background-color: #343a40;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row header">
+            <h5>Student Attendance Management System</h5>
+            <p>@ViewBag.TitleName</p>
+        </div>
+        <div class="row" id="main-content">
+
+            <nav id="sidebarMenu" class="col-3 col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-sidebar" href="@Url.Action("trangchu", "TrangChu")">
+                                <i class="fa-solid fa-house" style="color: #ffffff; padding-right: 10px;"></i>
+                                Trang chủ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-sidebar" href="@Url.Action("sinhvien", "QLSV")">
+                                <i class="fa-solid fa-user-graduate" style="color: #ffffff; padding-right: 10px;"></i>
+                                Quản lý sinh viên
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-sidebar" href="@Url.Action("giangvien", "QLGV")">
+                                <i class="fa-solid fa-user" style="color: #ffffff; padding-right: 10px;"></i>
+                                Quản lý giảng viên
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-sidebar" href="@Url.Action("hocphan", "QLHP")">
+                                <i class="fa-solid fa-book-open" style="color: #ffffff; padding-right: 10px;"></i>
+                                Quản lý học phần
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-sidebar" href="@Url.Action("diemdanh", "QLDD")">
+                                <i class="fa-regular fa-calendar-days" style="color: #ffffff; padding-right: 10px;"></i>
+                                Quản lý điểm danh
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            @RenderBody()
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

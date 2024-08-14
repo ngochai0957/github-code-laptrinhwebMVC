@@ -1,0 +1,390 @@
+﻿@model IEnumerable<DemoDiemDanh.Model.hocphan>
+@{
+    ViewBag.Title = "Học phần";
+    List<string> managedHocPhans = ViewBag.ManagedHocPhans as List<string>;
+    string currentMagv = ViewBag.Magv as string;
+    bool hasManagementRights = managedHocPhans != null && managedHocPhans.Any();
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+}
+<style>
+    .select-course {
+        margin-right: 20px;
+        border-radius: 20px;
+        padding: 5px;
+    }
+
+    .icon {
+        color: white;
+    }
+
+    .details {
+        color: limegreen;
+        cursor: pointer;
+    }
+
+    .table tbody tr:first-child {
+        background-color: blue;
+    }
+
+    .btn-icon {
+        border-radius: 8px;
+    }
+</style>
+<main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-2">
+    <div id="main-view">
+        <div class="container-fluid menu p-3 mt-2 m-0 mb-2 bg-light card shadow-sm" style="display:inline-block">
+            <label for="namhoc">Tìm kiếm theo: </label>
+            <select class="select-course" name="timkiem" id="timkiem">
+                <option value="1">Mã học phần</option>
+                <option value="2">Tên học phần</option>
+            </select>
+            <input id="searchInput" name="mahocphan" style="width: 120px; border-radius: 5px; padding: 5px 5px 5px 15px; margin-right: 670px; border: 0.5px solid #000;" />
+            
+            <button class="btn btn-success" title="Add" style="background-color: green; margin-top: -8px;" data-toggle="modal" data-target="#addhocphan">
+                Thêm học phần
+            </button>
+            <div class="mt-2">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="viewOption" id="viewAll" value="all" checked>
+                    <label class="form-check-label" for="viewAll">Tất cả</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="viewOption" id="viewMine" value="mine">
+                    <label class="form-check-label" for="viewMine">Của tôi</label>
+                </div>
+            </div>
+        </div>
+        <div class="pt-4 mt-2 mb-2 bg-light card shadow-sm">
+            <div class="table-responsive text-center">
+                <table class="table table-striped table-sm" id="studentTable">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã học phần</th>
+                            <th>Tên học phần</th>
+                            <th>Nhóm học phần</th>
+                            <th>Tín chỉ</th>
+                            <th>Chi tiết</th>
+                            @if (hasManagementRights)
+                            {
+                                <th>Thao tác</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="hocphanTable">
+                        @{
+                            int index = 1;
+                            foreach (var hp in Model)
+                            {
+                                var nhomhp = hp.nhomhp.TrimStart();
+                                var dashIndex = nhomhp.IndexOf('-');
+                                var nhomhpSuffix = dashIndex >= 0 ? nhomhp.Substring(dashIndex + 1) : string.Empty;
+                                <tr class="text-center">
+                                    <td>@index</td>
+                                    <td class="mahp">@hp.mahp</td>
+                                    <td class="tenhp">@hp.tenhp</td>
+                                    <td data-hocphanqly="@nhomhpSuffix">@nhomhpSuffix</td>
+                                    <td>@hp.tinchi</td>
+                                    <td><i class="details fa-solid fa-circle-info detail-icon" data-nhomhp="@hp.nhomhp"></i></td>
+                                    @if (managedHocPhans.Contains(hp.mahp))
+                                    {
+                                        <td>
+                                            <button class="btn-icon" id="btn-xoa" title="Xóa" style="background-color: red;" data-nhomhp="@hp.nhomhp" data-toggle="modal" data-target="#deleteModal">
+                                                <i style="padding:5px;font-size: 16px;margin-top: -8px;" class="icon fa-solid fa-trash-can"></i>
+                                            </button>
+                                            <button class="btn-icon" id="btn-sua" title="Sửa" style="background-color: rosybrown;" data-nhomhp="@hp.nhomhp" data-toggle="modal" data-target="#editModal">
+                                                <i style="padding: 5px; font-size: 16px; margin-top: -8px;" class="icon fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                        </td>
+}
+else
+                {
+                    <td></td>
+                }
+                                </tr>
+                                index++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Edit -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Chỉnh sửa học phần</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("UpdateHocPhan", "QLHP", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group mb-3">
+                            <label for="editMahp">Mã học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập mã học phần" name="Mahp" id="editMahp" required readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editTenhp">Tên học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên học phần" name="Tenhp" id="editTenhp" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editTinchi">Số tín chỉ:</label>
+                            <input type="number" class="form-control" placeholder="Nhập số tín chỉ" name="Tinchi" id="editTinchi" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editTenphong">Phòng học:</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên phòng học" name="Tenphong" id="editTenphong" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editNhomhp">Nhóm học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập nhóm học phần" name="Nhomhp" id="editNhomhp" required readonly />
+                        </div>
+                        <div>
+                            <div class="form-group input-group mb-3">
+                                <span class="input-group-text">Thứ</span>
+                                <input type="text" class="form-control" placeholder="Thứ" name="Thu" id="editThu" required aria-label="thu">
+                                <span class="input-group-text">Tiết</span>
+                                <input type="text" class="form-control" placeholder="123" name="Tiethoc" id="editTiethoc" required aria-label="tiethoc">
+                            </div>
+                            <p>*Ví dụ: Thứ 234 => Tiết học: 123-456-12</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add -->
+    <div class="modal fade" id="addhocphan" tabindex="-1" aria-labelledby="addhocphanLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addhocphanLabel">Thêm học phần</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("ThemHocPhan", "QLHP", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group mb-3">
+                            <label for="mahp">Mã học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập mã học phần" name="mahp" id="mahp" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="tenhp">Tên học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên học phần" name="tenhp" id="tenhp" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="tinchi">Số tín chỉ:</label>
+                            <input type="number" class="form-control" placeholder="Nhập số tín chỉ" name="tinchi" id="tinchi" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="tenphong">Phòng học:</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên phòng học" name="tenphong" id="tenphong" required />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="tenphong">Nhóm học phần:</label>
+                            <input type="text" class="form-control" placeholder="Nhập nhóm học phần" name="nhomhp" id="nhomhp" required />
+                        </div>
+                        <div>
+                            <div class="form-group input-group mb-3">
+                                <span class="input-group-text">Thứ</span>
+                                <input type="text" class="form-control" placeholder="Thứ" name="thu" required aria-label="thu">
+                                <span class="input-group-text">Tiết</span>
+                                <input type="text" class="form-control" placeholder="123" name="tiethoc" required aria-label="tiethoc">
+                            </div>
+                            <p>*Ví dụ: Thứ 234 => Tiết học: 123-456-12</p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Delete -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa học phần này không?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" id="confirmDelete" class="btn btn-danger">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+
+
+    $(document).ready(function () {
+
+        // Khi người dùng nhập từ khóa tìm kiếm
+        $('#searchInput').on('keyup', function () {
+            var searchValue = $(this).val().toLowerCase();
+            var searchBy = $('#timkiem').val(); // Lấy giá trị của select (1: Mã học phần, 2: Tên học phần)
+
+            $('#hocphanTable tr').filter(function () {
+                $(this).toggle($(this).find(searchBy == 1 ? '.mahp' : '.tenhp').text().toLowerCase().indexOf(searchValue) > -1);
+            });
+        });
+
+        // Khi nhấn vào nút "Xóa"
+        $(document).on('click', '.btn-icon[data-target="#deleteModal"]', function () {
+            const nhomhp = $(this).data('nhomhp');
+
+            // Đặt dữ liệu vào modal xác nhận xóa
+            $('#deleteModal').find('#confirmDelete').data('nhomhp', nhomhp);
+        });
+        // Khi xác nhận xóa
+        $('#confirmDelete').click(function () {
+            const nhomhp = $(this).data('nhomhp');
+            $.ajax({
+                url: '@Url.Action("DeleteHocPhan", "QLHP")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                    nhomhp: nhomhp
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Hiển thị toast thông báo thành công
+                        $('.toast-body').text('Xóa thành công!');
+                        $('.toast').toast({ delay: 3000 });
+                        $('.toast').toast('show');
+                        // Reload lại trang
+                        location.reload();
+                    } else {
+                        // Hiển thị toast thông báo lỗi
+                        $('.toast-body').text(response.message);
+                        $('.toast').toast({ delay: 3000 });
+                        $('.toast').toast('show');
+                    }
+                },
+                error: function () {
+                    // Hiển thị toast thông báo lỗi
+                    $('.toast-body').text('Có lỗi xảy ra khi xóa học phần');
+                    $('.toast').toast({ delay: 3000 });
+                    $('.toast').toast('show');
+                }
+            });
+        });
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Thêm sự kiện cho các biểu tượng chi tiết
+        document.querySelectorAll('.detail-icon').forEach((elem) => {
+            elem.addEventListener('click', function () {
+                const nhomhp = this.getAttribute('data-nhomhp');
+                // Điều hướng đến hành động chi tiết trong controller
+                window.location.href = `/QLHP/ChitietHocPhan?nhomhp=${nhomhp}`;
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // Thêm sự kiện cho các biểu tượng chi tiết
+        document.querySelectorAll('.detail-icon').forEach((elem) => {
+            elem.addEventListener('click', function () {
+                const nhomhp = this.getAttribute('data-nhomhp');
+                // Ẩn phần main-view và hiện phần detail-view
+                document.getElementById('main-view').style.display = 'none';
+                document.getElementById('detail-view').style.display = 'block';
+                // Gọi hàm để cập nhật thông tin chi tiết
+                updateDetailView(mahp);
+            });
+        });
+    });
+
+
+    // Khi nhấn vào nút "Sửa"
+        $(document).on('click', '.btn-icon[data-target="#editModal"]', function () {
+        const nhomhp = $(this).data('nhomhp');
+        // Gọi AJAX để lấy thông tin học phần
+        $.ajax({
+            url: '@Url.Action("GetHocPhan", "QLHP")',
+            data: { nhomhp: nhomhp },
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    // Đặt dữ liệu vào các trường trong modal
+                    $('#editMahp').val(response.data.mahp);
+                    $('#editTenhp').val(response.data.tenhp);
+                    $('#editTinchi').val(response.data.tinchi);
+                    $('#editTenphong').val(response.data.tenphong);
+                    $('#editNhomhp').val(response.data.nhomhp);
+                    $('#editThu').val(response.data.thu);
+                    $('#editTiethoc').val(response.data.tiethoc);
+                    // Mở modal
+                    $('#editModal').modal('show');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert('Có lỗi xảy ra khi lấy thông tin học phần');
+            }
+        });
+           // Khi nhấn nút lưu thay đổi
+           $('#editModal form').submit(function (event) {
+               event.preventDefault();
+               var formData = $(this).serialize();
+               console.log('Form Data:', formData); // Kiểm tra dữ liệu gửi lên
+
+               $.ajax({
+                   url: $(this).attr('action'),
+                   type: $(this).attr('method'),
+                   data: formData,
+                   success: function (response) {
+                       if (response.success) {
+                           // Hiển thị thông báo thành công
+                           $('.toast-body').text('Cập nhật thành công!');
+                           $('.toast').toast({ delay: 3000 });
+                           $('.toast').toast('show');
+
+                           // Đóng modal
+                           $('#editModal').modal('hide');
+
+                           // Reload trang
+                           setTimeout(function () {
+                               location.reload();
+                           }, 3000); // Thời gian chờ để người dùng có thể xem thông báo
+                       } else {
+                           // Hiển thị thông báo lỗi
+                           $('.toast-body').text(response.message);
+                           $('.toast').toast({ delay: 3000 });
+                           $('.toast').toast('show');
+                       }
+                   },
+                   error: function () {
+                       // Hiển thị thông báo lỗi
+                       $('.toast-body').text('Có lỗi xảy ra khi cập nhật học phần');
+                       $('.toast').toast({ delay: 3000 });
+                       $('.toast').toast('show');
+                   }
+               });
+           });
+});
+
+</script>

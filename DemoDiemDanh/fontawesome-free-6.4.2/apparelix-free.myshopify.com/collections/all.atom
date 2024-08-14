@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xml:lang="en" xmlns="http://www.w3.org/2005/Atom" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:s="http://jadedpixel.com/-/spec/shopify">
+  <id>https://apparelix-free.myshopify.com/collections/all.atom</id>
+  <link rel="alternate" type="text/html" href="https://apparelix-free.myshopify.com/collections/all"/>
+  <link rel="self" type="application/atom+xml" href="https://apparelix-free.myshopify.com/collections/all.atom"/>
+  <title>apparelix-free</title>
+  <updated>2019-12-11T04:44:21-05:00</updated>
+  <author>
+    <name>apparelix-free</name>
+  </author>
+  <entry>
+    <id>https://apparelix-free.myshopify.com/products/4345275547707</id>
+    <published>2019-12-11T04:44:21-05:00</published>
+    <updated>2019-12-11T04:44:21-05:00</updated>
+    <link rel="alternate" type="text/html" href="https://apparelix-free.myshopify.com/products/aillaa_wool_wrap_over_cape"/>
+    <title>Aillaa Wool Wrap Over Cape</title>
+    <s:type>Casual</s:type>
+    <s:vendor>Valentino</s:vendor>
+    <summary type="html">
+      <![CDATA[<table border="0">
+      <tr>
+        <td width="200"><img width="200" src="https://cdn.shopify.com/s/files/1/0260/4328/5563/products/aillaa_wool_wrap_over_cape_1_3b69274c-0004-4ded-9765-d6da6b0acdf9.jpg?v=1576057470"></td>
+        <td valign="bottom">
+          <p>
+
+            <strong>Vendor: </strong>Valentino<br>
+            <strong>Type: </strong>Casual<br>
+            <strong>Price: </strong>
+                80.00 - 150.00
+                <a href="https://apparelix-free.myshopify.com/products/aillaa_wool_wrap_over_cape">(4 variants)</a>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2"><p><strong>You know that computers are being applied in all spheres of society</strong></p>
+    <p>Fashion has always been so temporary and uncertain. You can’t keep up with it. This social phenomenon is very whimsical, thus we as the consumers always try to stay in touch with all the latest fashion tendencies. Obviously there is nothing wrong about it because fashion satisfies our willingness to be attractive. And also fashion is the detector of prosperity and social rank.But nowadays fashion is not such unavailable as it was a couple of centuries ago.</p>
+    <ul>
+    <li>Men’s clothing</li>
+    <li>Women’s clothing</li>
+    <li>Teens clothing</li>
+    <li>Children's clothing</li>
+    <li>Hats &amp; Caps</li>
+    </ul>
+    <p style="text-align: left;"><strong><img alt="clothes" src="https://cdn.shopify.com/s/files/1/1026/0021/files/blog3.jpg?6221688229229430451" style="float: none;"></strong></p>
+    <p>The main reason of buying our clothes is the unique combination of fair price, extraordinary style and perfect quality. Here you can find garments of all sizes, colors, styles and fabrics. It will suit you best of all. Because we all live in the time of total consuming of uncountable goods and services, and this has become the main reason for the rapid growth of a so-called culture of consumption in our society.</p>
+    <p>Our good was made up by best experts with the help of most advanced technologies, and it gives us right to consider this product to be a premium one. Fashion has always been so temporary and uncertain. You can’t keep up with it.</p></td>
+      </tr>
+    </table>
+    ]]>
+        </summary>
+        <s:tag>accessories</s:tag>
+        <s:tag>casual</s:tag>
+        <s:tag>clothes</s:tag>
+        <s:tag>fashionable</s:tag>
+        <s:tag>online</s:tag>
+        <s:variant>
+          <id>https://apparelix-free.myshopify.com/products/4345275547707</id>
+          <title>Black / XS / Fabric</title>
+          <s:price currency="USD">80.00</s:price>
+          <s:sku/>
+          <s:grams>1200</s:grams>
+        </s:variant>
+        <s:variant>
+          <id>https://apparelix-free.myshopify.com/products/4345275547707</id>
+          <title>White / XS / Fabric</title>
+          <s:price currency="USD">100.00</s:price>
+          <s:sku/>
+          <s:grams>2500</s:grams>
+        </s:variant>
+        <s:variant>
+          <id>https://apparelix-free.myshopify.com/products/4345275547707</id>
+          <title>Black / S / Fabric</title>
+          <s:price currency="USD">125.00</s:price>
+          <s:sku/>
+          <s:grams>800</s:grams>
+        </s:variant>
+        <s:variant>
+          <id>https://apparelix-free.myshopify.com/products/4345275547707</id>
+          <title>White / S / Leather</title>
+          <s:price currency="USD">150.00</s:price>
+          <s:sku/>
+          <s:grams>100</s:grams>
+        </s:variant>
+  </entry>
+  

@@ -1,0 +1,164 @@
+﻿@model IEnumerable<DemoDiemDanh.Model.sinhvien>
+@{
+    ViewBag.Title = "Thêm sinh viên vào học phần";
+    @Styles.Render("~/CssForWeb/for-sinhvien.css")
+}
+
+<style>
+    .select-student {
+        margin-right: 20px;
+        border-radius: 20px;
+        padding: 5px;
+    }
+
+    .icon {
+        color: white;
+        padding: 8px;
+        font-size: 20px;
+    }
+
+    .btn-icon {
+        border-radius: 8px;
+    }
+</style>
+
+<main id="main-content" class=" col-md-9 ms-sm-auto col-lg-10 px-md-2">
+    <div class="container-fluid menu p-3 mt-2 mb-2 bg-light card shadow-sm" style="display:inline-block">
+        <label for="khoa">Khoa: </label>
+        <select class="select-student text-center" name="khoa" id="khoa">
+            <option value="" disabled selected>--Vui lòng chọn Khoa--</option>
+            <option value="1">Khoa Công nghệ số và Kỹ thuật</option>
+        </select>
+
+        <label for="namhoc">Khoá: </label>
+        <select id="namhoc" onchange="filterClasses()">
+            <option value="">--Vui lòng chọn Khóa--</option>
+            <!-- Các giá trị Khóa sẽ được tạo động từ cơ sở dữ liệu -->
+        </select>
+
+        <label for="lop">Lớp: </label>
+        <select class="select-student" name="lop" id="lop" onchange="filterStudents()">
+            <option value="" disabled selected>--Vui lòng chọn Lớp--</option>
+            <!-- Partial view _ClassesDropdown sẽ được load vào đây -->
+        </select>
+        <div class="btn-group mt-3">
+            <button class="btn-icon" title="addsvhp" style="background-color: red;" data-toggle="modal" data-target="#addsvhpModal">
+                <i class="icon fa-solid fa-trash-can"></i>
+            </button>
+            <button type="button" class="btn btn-secondary"><a href="@Url.Action("hocphan","QLHP")">Quay lại</a></button>
+        </div>
+
+    </div>
+    <div class="pt-4 mt-2 mb-2 bg-light card shadow-sm">
+        <div class="table-responsive">
+            <div id="studentTable">
+                @Html.Partial("AddSV", Model)
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal deleteModal -->
+    <div class="modal fade" id="addsvhpModal" tabindex="-1" role="dialog" aria-labelledby="addsvhpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addsvhpModalLabel">addsvhp Students</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Nội dung sẽ được thêm động từ JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirmAddButton">addsvhp permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+        $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("GetNamhocOptions", "QLSV")',
+            type: 'GET',
+            success: function (data) {
+                var $namhocDropdown = $('#namhoc');
+                $.each(data, function (index, item) {
+                    $namhocDropdown.append($('<option>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            }
+        });
+    });
+ $(document).ready(function () {
+    // Khi thay đổi Khóa học, lọc danh sách Lớp
+    $("#namhoc").change(function () {
+        filterClasses();
+    });
+
+    // Khi thay đổi Lớp, lọc danh sách Sinh viên
+    $("#lop").change(function () {
+        filterStudents();
+    });
+
+    // Hiển thị thông báo từ TempData
+    @if (TempData["Message"] != null)
+    {
+
+        <text>
+            alert("@TempData["Message"]");
+        </text>
+        TempData["Message"] = null;
+    }
+    @if (TempData["Error"] != null)
+    {
+
+        <text>
+    alert("@TempData["Error"]");
+        </text>
+        TempData["Error"] = null;
+    }
+});
+
+function filterClasses() {
+        var namhoc = $("#namhoc").val();
+
+        $.ajax({
+            url: '@Url.Action("GetClassesByNamhoc", "QLSV")',
+            type: 'GET',
+            data: { namhoc: namhoc },
+            success: function (data) {
+                var $lopDropdown = $('#lop');
+                $lopDropdown.empty();
+                $lopDropdown.append('<option value="">--Vui lòng chọn Lớp--</option>');
+
+                $.each(data, function (index, item) {
+                    $lopDropdown.append($('<option>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            }
+        });
+    }
+
+function filterStudents() {
+    var lop = $("#lop").val();
+
+    $.ajax({
+        url: '@Url.Action("GetStudentsByLop", "QLSV")',
+        type: 'GET',
+        data: { lop: lop },
+        success: function (data) {
+            $('#studentTable').html(data); // Cập nhật bảng sinh viên sau khi lọc theo Lớp
+        }
+    });
+}
+</script>

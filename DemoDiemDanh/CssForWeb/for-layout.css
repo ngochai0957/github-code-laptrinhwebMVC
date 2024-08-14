@@ -1,0 +1,90 @@
+﻿
+#sidebarMenu {
+    width: 250px; /* Tăng chiều rộng theo ý muốn */
+    background-color: rgb(6, 72, 86);
+}
+
+@media (min-width: 768px) {
+    .col-md-3 {
+        flex: 0 0 250px; /* Tăng chiều rộng theo ý muốn */
+        max-width: 250px; /* Tăng chiều rộng theo ý muốn */
+    }
+}
+
+@media (min-width: 992px) {
+    .col-lg-2 {
+        flex: 0 0 250px; /* Tăng chiều rộng theo ý muốn */
+        max-width: 250px; /* Tăng chiều rộng theo ý muốn */
+    }
+
+    .col-lg-10 {
+        flex: 0 0 calc(100% - 250px); /* Điều chỉnh chiều rộng còn lại cho phần nội dung chính */
+        max-width: calc(100% - 250px); /* Điều chỉnh chiều rộng còn lại cho phần nội dung chính */
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: auto;
+    background-color: rgb(39, 111, 212);
+}
+
+    .header h5 {
+        padding: 10px;
+        font-size: 40px;
+        width: auto;
+    }
+
+    .header p {
+        padding: 5px;
+        font-size: 20px;
+        width: 350px;
+        display: flex;
+        justify-content: end;
+        margin-right: 10px;
+    }
+
+.nav-link-sidebar {
+    color: white;
+    font-size: 18px;
+}
+
+.nav-item a:hover {
+    background-color: rgb(58, 210, 221);
+    ;
+    color: white;
+}
+
+.p-text {
+    margin: 3px;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(42, 70, 90);
+}
+
+.inline-container {
+    display: flex;
+    align-items: center;
+}
+
+    .inline-container p {
+        margin: 0;
+        padding-right: 10px;
+    }
+
+.p-card {
+    margin: 8px;
+}
+
+.select-student {
+    margin-right: 80px;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+}

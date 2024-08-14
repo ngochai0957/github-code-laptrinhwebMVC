@@ -1,0 +1,205 @@
+﻿@model ChitietHocPhanViewModel
+@{
+    var mahp = ViewBag.MaHP;
+    var nhomhp = ViewBag.Nhomhp;
+}
+@{
+    Layout = null;
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/CssForWeb/for-layout.css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    ViewBag.Title = "Chi tiết học phần";
+    List<string> managedHocPhans = ViewBag.ManagedHocPhans as List<string>;
+    string currentNhomhp = ViewBag.mahp as string;
+    bool hasManagementRights = managedHocPhans != null && managedHocPhans.Contains(currentNhomhp);
+}
+
+<div class="container-fluid card bg-light">
+    <h2>Chi tiết học phần</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+
+                <th>Thứ</th>
+                <th>Mã học phần</th>
+                <th>Tên học phần</th>
+                <th>Tiết học</th>
+                <th>Phòng học</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.HocPhanDetails)
+            {
+                <tr>
+
+                    <td>@item.Thu</td>
+                    <td>@item.MaHocPhan</td>
+                    <td>@item.TenHocPhan</td>
+                    <td>@item.Tiethoc</td>
+                    <td>@item.TenPhong</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="d-flex" style="justify-content:end;">
+        @if (hasManagementRights)
+        {
+            <button class="btn btn-success" title="Thêm Sinh Viên" style="background-color: green;">
+                <a href="@Url.Action("sinhvienadd", "QLSV", new { nhomhp = nhomhp })" style="color: white; text-decoration: none;">Thêm sinh viên</a>
+            </button>
+            
+            <button class="btn btn-danger" title="Delete" id="confirmDelete" data-toggle="modal" data-target="#deleteModal" style="margin-left: 10px">Xóa</button>
+        }
+        <button class="btn btn-primary" style="margin-left: 10px"><a style="color:white;text-decoration:none;" href="@Url.Action("hocphan")">Trở lại</a></button>
+    </div>
+    <h2>Danh sách sinh viên</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã số sinh viên</th>
+                <th>Họ và tên</th>
+                <th>Ngày sinh</th>
+                <th>Giới tính</th>
+                <th>Lớp</th>
+                <th>
+                    <input type="checkbox" id="checkAll" />
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.SinhViens != null)
+            {
+                int index = 1;
+                foreach (var sinhvien in Model.SinhViens)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@sinhvien.masv</td>
+                        <td>@sinhvien.tensv.ToUpper()</td>
+                        <td>
+                            @{
+                                if (DateTime.TryParse(sinhvien.ngaysinh, out DateTime parsedDate))
+                                {
+                                    @parsedDate.ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    @sinhvien.ngaysinh
+                                }
+                            }
+                        </td>
+                        <td>@sinhvien.gioitinh</td>
+                        <td>@sinhvien.lop</td>
+                        <td>
+                            <input type="checkbox" class="row-checkbox checkbox-item" value="@sinhvien.masv" />
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<input type="hidden" id="hiddenNhomhp" value="@ViewBag.Nhomhp" />
+
+<!-- Modal deleteModal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Deleted Students</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Nội dung sẽ được thêm động từ JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete permanently</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // Xử lý sự kiện khi click vào checkbox "Check All"
+        $('#checkAll').change(function () {
+            $('.checkbox-item').prop('checked', $(this).prop('checked'));
+        });
+
+        // Cập nhật trạng thái của checkbox "Check All" dựa trên checkbox con
+        $('.checkbox-item').change(function () {
+            if ($('.checkbox-item:checked').length === $('.checkbox-item').length) {
+                $('#checkAll').prop('checked', true);
+            } else {
+                $('#checkAll').prop('checked', false);
+            }
+        });
+
+        // Khi nhấn nút delete, lấy danh sách sinh viên được chọn và hiển thị trong modal
+        $("button[title='Delete']").click(function () {
+            var isSelectAllChecked = $("#checkAll").prop('checked');
+            var selectedStudents = [];
+            $(".checkbox-item:checked").each(function (index) {
+                // Bỏ qua dòng đầu tiên nếu chọn tất cả
+                if (isSelectAllChecked && index === 0) return true;
+
+                var row = $(this).closest('tr');
+                var student = {
+                    masv: $(this).val(),
+                    tensv: row.find('td:eq(2)').text(),
+                    ngaysinh: row.find('td:eq(3)').text(),
+                    gioitinh: row.find('td:eq(4)').text(),
+                    lop: row.find('td:eq(5)').text()
+                };
+                selectedStudents.push(student);
+            });
+
+            if (selectedStudents.length > 0) {
+                var modalBody = $("#deleteModal .modal-body");
+                modalBody.empty();
+                modalBody.append("<table class='table'><thead><tr><th>Mã số sinh viên</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Lớp</th></tr></thead><tbody></tbody></table>");
+
+                selectedStudents.forEach(function (student) {
+                    modalBody.find("tbody").append("<tr><td>" + student.masv + "</td><td>" + student.tensv + "</td><td>" + student.ngaysinh + "</td><td>" + student.gioitinh + "</td><td>" + student.lop + "</td></tr>");
+                });
+            }
+        });
+
+        // Khi nhấn nút xác nhận xóa trong modal
+        $("#confirmDeleteButton").click(function () {
+            var selectedMasv = [];
+            $(".checkbox-item:checked").each(function (index) {
+                // Bỏ qua dòng đầu tiên nếu chọn tất cả
+                selectedMasv.push($(this).val());
+            });
+
+            var nhomhp = $("#hiddenNhomhp").val(); // Lấy giá trị nhomhp từ trường ẩn
+
+            $.ajax({
+                url: '@Url.Action("DeleteSVHP", "QLHP")',
+                type: 'POST',
+                data: { selectedIds: selectedMasv, nhomhp: nhomhp },
+                success: function (data) {
+                    if (data.success) {
+                        location.reload(); // Reload lại trang nếu xóa thành công
+                    } else {
+                        alert(data.message || 'Xảy ra lỗi khi xóa sinh viên.');
+                    }
+                },
+                error: function () {
+                    alert('Xảy ra lỗi khi xóa sinh viên.');
+                }
+            });
+        });
+    });
+</script>

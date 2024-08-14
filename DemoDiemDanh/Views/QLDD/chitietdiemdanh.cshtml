@@ -1,0 +1,181 @@
+﻿@model DetailViewModel
+
+@{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/CssForWeb/for-layout.css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    Layout = null;
+    ViewBag.Title = "Chi tiết điểm danh";
+    var currentMonth = DateTime.Now.Month;
+    var currentYear = DateTime.Now.Year;
+    var daysInMonth = DateTime.DaysInMonth(currentYear, currentMonth);
+    var today = DateTime.Today;
+
+    string GetVietnameseDayOfWeek(DayOfWeek dayOfWeek)
+    {
+        switch (dayOfWeek)
+        {
+            case DayOfWeek.Monday: return "Hai";
+            case DayOfWeek.Tuesday: return "Ba";
+            case DayOfWeek.Wednesday: return "Tư";
+            case DayOfWeek.Thursday: return "Năm";
+            case DayOfWeek.Friday: return "Sáu";
+            case DayOfWeek.Saturday: return "Bảy";
+            case DayOfWeek.Sunday: return "CN";
+            default: return "";
+        }
+    }
+}
+
+<div class="container-fluid card shadow-sm bg-info p-4 mt-2 mb-2">
+    <div class="row">
+        <h2 style="width: 1480px">Chi tiết điểm danh tháng</h2>
+        <button class="btn btn-warning" style="width: 200px;margin-right:20px;color:white">
+            <a style="color: white;text-decoration:none;" href="@Url.Action("diemdanh","QLDD")">Trở lại</a>
+        </button>
+        <button class="btn btn-success" id="btn_openEdit" style="width: 200px;margin-right:20px">
+            Sửa thông tin
+        </button>
+
+        <!-- Thêm select cho chọn tháng -->
+        <select id="monthSelect" class="form-control" style="width: 200px;">
+            <option value="">Chọn tháng</option>
+            @for (int month = 1; month <= 12; month++)
+            {
+                <option value="@month">@month</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div id="detail-view" class="container-fluid card shadow-sm p-0">
+    <form id="attendanceForm" action="@Url.Action("SaveAttendance", "QLDD")" method="post">
+        <button type="submit" id="saveDDButton" class="btn btn-primary" style="width: 200px; margin: 20px;">Lưu thông tin</button>
+        <table class="table table-striped" id="studentTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 145px">Mã số sinh viên</th>
+                    <th rowspan="2" style="width: 200px">Họ tên</th>
+                    <th rowspan="2">Lớp</th>
+                    @for (int day = 1; day <= today.Day; day++)
+                    {
+                        <th>@GetVietnameseDayOfWeek(new DateTime(currentYear, currentMonth, day).DayOfWeek)</th>
+                    }
+                </tr>
+                <tr>
+                    @for (int day = 1; day <= daysInMonth; day++)
+                    {
+                        <th>@day</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.SinhViens != null && Model.SinhViens.Count > 0)
+                {
+                    foreach (var sinhvien in Model.SinhViens)
+                    {
+                        <tr>
+                            <td>@sinhvien.masv</td>
+                            <td>@sinhvien.tensv</td>
+                            <td>@sinhvien.lop</td>
+                            @for (int day = 1; day <= daysInMonth; day++)
+                            {
+                                var date = new DateTime(currentYear, currentMonth, day);
+                                var isToday = date.Date == today.Date;
+                                var isPastDate = date.Date < today.Date; // Check if the date is in the past
+                                var attendanceRecord = Model.Attendance
+                                    .FirstOrDefault(a => a.masv == sinhvien.masv && DateTime.ParseExact(a.ngaydd, "dd/MM/yyyy", null).Date == date.Date);
+
+                                var isChecked = attendanceRecord != null && attendanceRecord.tinhtrang == "Có mặt";
+                                var isCheckedAttr = isChecked ? "checked" : "";
+                                var inputName = $"attendance[{sinhvien.masv}][{date:yyyyMMdd}]";
+                                var inputValue = "Có mặt";
+
+                                if (isToday || isPastDate)
+                                {
+                                    <td>
+                                        <input type="checkbox" name="@inputName" class="check_input" value="@inputValue" @isCheckedAttr data-masv="@sinhvien.masv" data-date="@date.ToString("yyyy-MM-dd")" disabled />
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <!-- Ô trống cho ngày chưa đến -->
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="@(3 + daysInMonth)">Không có dữ liệu sinh viên</td>
+                    </tr>
+                }
+            </tbody>
+
+
+        </table>
+    </form>
+</div>
+
+<script>
+
+    // Save attendance
+    $('#attendanceForm').submit(function (e) {
+        e.preventDefault();
+        var attendanceData = [];
+
+        $('#studentTable tbody tr').each(function () {
+            var masv = $(this).find('input.check_input').data('masv');
+            $(this).find('input.check_input').each(function () {
+                var isChecked = $(this).prop('checked');
+                var status = isChecked ? "Có mặt" : "Vắng";
+                var date = $(this).data('date');
+
+                attendanceData.push({
+                    masv: masv,
+                    ngaydd: date,
+                    tinhtrang: status
+                });
+            });
+        });
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var nhomhp = urlParams.get('nhomhp');
+
+        $.ajax({
+            url: '@Url.Action("SaveAttendance", "QLDD")',
+            type: 'POST',
+            data: JSON.stringify({
+                attendanceData: attendanceData,
+                nhomhp: nhomhp
+            }),
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                if (response.success) {
+                    alert("Cập nhật thành công!");
+                    location.reload();
+                } else {
+                    alert("Có lỗi xảy ra!");
+                }
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('#btn_openEdit').click(function () {
+            $('.check_input').each(function () {
+                var today = new Date().toISOString().split('T')[0];
+                if ($(this).data('date') === today) {
+                    $(this).prop('disabled', false);
+                }
+            });
+        });
+    });
+
+</script>
